@@ -1,6 +1,6 @@
 #!/usr/bin/python3.12
 from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
-from tools import ts_print, read_json
+from tools import ts_print, read_json, setup_logging
 from discord import Intents
 from discord.ext import commands
 from Cogs import *
@@ -27,4 +27,5 @@ class HoeBot(commands.Bot):
 if __name__ == "__main__":
     set_event_loop_policy(WindowsSelectorEventLoopPolicy())
     config = read_json("config")
+    setup_logging()
     HoeBot().run(token=config["token"])
