@@ -1,12 +1,9 @@
 #!/usr/bin/python3.12
-import json, asyncio
-from tools import ts_print
-from discord import Intents, Message
+from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
+from tools import ts_print, read_json
+from discord import Intents
 from discord.ext import commands
-from pathlib import Path
 from Cogs import *
-
-__location__ = Path(__file__).parent.resolve()
 
 class HoeBot(commands.Bot):
     def __init__(self) -> None:
@@ -14,11 +11,10 @@ class HoeBot(commands.Bot):
         intents.presences = True
         intents.members = True
         intents.message_content = True
-        super().__init__(command_prefix="$", intents=intents)
+        super().__init__(command_prefix=commands.when_mentioned_or('$'), intents=intents)
 
     async def setup_hook(self) -> None:
-        await self.add_cog(membercog.MemberCog(self))
-        await self.add_cog(messagecog.Messages(self))
+        await self.add_cog(randomcog.Random(self))
 
     async def on_ready(self) -> None:
         ts_print(f"{self.user} started, member of:")
@@ -28,11 +24,7 @@ class HoeBot(commands.Bot):
     async def on_command_error(self, context, exception):
         return await super().on_command_error(context, exception)
 
-def main(config: dict[str, str]):
-    HoeBot().run(token=config["token"])
-    return False
-
 if __name__ == "__main__":
-    with open(__location__ / "config.json", 'r', encoding="utf-8") as r_json:
-        config = json.load(r_json)
-    main(config)
+    set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+    config = read_json("config")
+    HoeBot().run(token=config["token"])

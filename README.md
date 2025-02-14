@@ -1,2 +1,2 @@
 # hoebot
-Discord bot for Bablyons Skökor
+Discord bot for Babylons Skökor
