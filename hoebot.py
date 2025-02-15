@@ -3,7 +3,6 @@ from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
 from tools import ts_print, read_json, setup_logging
 from discord import Intents
 from discord.ext import commands
-from Cogs import *
 
 class HoeBot(commands.Bot):
     def __init__(self) -> None:
@@ -15,8 +14,7 @@ class HoeBot(commands.Bot):
                          intents=intents)
 
     async def setup_hook(self) -> None:
-        await self.add_cog(randomcog.Randoms(self))
-        await self.add_cog(membercog.Members(self))
+        await self.load_extension("Cogs.membercog")
 
     async def on_ready(self) -> None:
         ts_print(f"{self.user} started, member of:")

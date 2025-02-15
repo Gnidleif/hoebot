@@ -11,40 +11,40 @@ class Members(commands.Cog):
         self.bot: commands.Bot = bot
         self._random_timeout_list = {}
 
-    async def cog_check(self, ctx):
-        return ctx.author.guild_permissions.administrator
-
-    @commands.command(name="random_timeout")
-    async def cmd_random_timeout(self, ctx, *, 
-                                 member: Member, 
-                                 chance: int = 2) -> None:
-        """Attempts to randomly timeout a member for a minute every second"""
-        if member is None:
-            return
-
+    @commands.command(name="random_timeout", aliases=["rdt"])
+    @commands.has_guild_permissions(moderate_members=True)
+    async def cmd_random_timeout(self, ctx,
+                                 member: Member = commands.parameter(description="Member to time out"),
+                                 sides: int = commands.parameter(default=100,
+                                                                  description="Sides of the die"),
+                                 timeout_time: int = commands.parameter(default=60,
+                                                                        description="Timeout time")) -> None:
+        """
+        Sometimes randomly times out given member
+        """
         if member.id in self._random_timeout_list:
             self._random_timeout_list[member.id].cancel()
             await ctx.send(f"{member.mention} is no longer randomly set on timeout")
+            _ = self._random_timeout_list.pop(member.id)
             return
         
         self._random_timeout_list[member.id] = self.bot.loop.create_task(
-            self.random_timeout(ctx=ctx,
-                                member=member,
-                                chance=chance))
-        await ctx.send(f"{member.mention} is now randomly set on timeout")
+            self.random_timeout(ctx, member, sides, timeout_time))
+        await ctx.send(f"{member.mention} is now has a {1/sides}% chance every second to be set on timeout for {timeout_time} seconds")
         
-    async def random_timeout(self, ctx, *, member: Member, chance: int) -> None:
-        while True:
+    async def random_timeout(self, ctx, member: Member, sides: int, timeout_time: int) -> None:
+        while not self.bot.is_closed():
             sleep_time: int = 1
-            roll: int = randint(1, chance)
+            roll: int = randint(1, sides)
             if roll == 1:
-                sleep_time = 5
-                timeout_time = datetime.now() + timedelta(seconds=sleep_time)
-
-                await ctx.send(f"Random timeout: {member.mention} until {timeout_time.strftime('%H:%M:%S')}")
+                sleep_time = timeout_time
+                until = datetime.now() + timedelta(seconds=timeout_time)
+                await ctx.send(f"Random timeout: {member.mention} until {until.strftime('%H:%M:%S')}")
                 try:
-                    await member.timeout(timeout_time, reason="lol")
+                    await member.timeout(until, reason="lol")
                 except:
                     ...
             await asyncio.sleep(sleep_time)
-            # await member.timeout(60, reason="lol")
+
+async def setup(bot):
+    await bot.add_cog(Members(bot))
