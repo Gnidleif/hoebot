@@ -1,4 +1,4 @@
-config.json
+*.json
 __pycache__
 notes.md
 discord.log

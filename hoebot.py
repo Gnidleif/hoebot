@@ -14,7 +14,7 @@ class HoeBot(commands.Bot):
                          intents=intents)
 
     async def setup_hook(self) -> None:
-        await self.load_extension("Cogs.membercog")
+        await self.load_extension("cogs.membercog")
 
     async def on_ready(self) -> None:
         ts_print(f"{self.user} started, member of:")
