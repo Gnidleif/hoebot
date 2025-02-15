@@ -2,7 +2,6 @@
 import asyncio
 from discord import Member
 from discord.ext import commands
-from tools import ts_print
 from random import randint
 from datetime import datetime, timedelta
 
@@ -11,11 +10,11 @@ class Members(commands.Cog):
         self.bot: commands.Bot = bot
         self._random_timeout_list = {}
 
-    @commands.command(name="random_timeout", aliases=["rdt"])
+    @commands.command(name="random_timeout", aliases=["rto"])
     @commands.has_guild_permissions(moderate_members=True)
     async def cmd_random_timeout(self, ctx,
                                  member: Member = commands.parameter(description="Member to time out"),
-                                 sides: int = commands.parameter(default=100,
+                                 sides: int = commands.parameter(default=1000,
                                                                   description="Sides of the die"),
                                  timeout_time: int = commands.parameter(default=60,
                                                                         description="Timeout time")) -> None:
@@ -30,7 +29,7 @@ class Members(commands.Cog):
         
         self._random_timeout_list[member.id] = self.bot.loop.create_task(
             self.random_timeout(ctx, member, sides, timeout_time))
-        await ctx.send(f"{member.mention} is now has a {1/sides}% chance every second to be set on timeout for {timeout_time} seconds")
+        await ctx.send(f"{ctx.author.mention}: {member.mention} now has a {1/sides}% chance every second to be set on timeout for {timeout_time} seconds")
         
     async def random_timeout(self, ctx, member: Member, sides: int, timeout_time: int) -> None:
         while not self.bot.is_closed():
@@ -39,7 +38,7 @@ class Members(commands.Cog):
             if roll == 1:
                 sleep_time = timeout_time
                 until = datetime.now() + timedelta(seconds=timeout_time)
-                await ctx.send(f"Random timeout: {member.mention} until {until.strftime('%H:%M:%S')}")
+                await ctx.send(f"{member.mention} is now timed out until {until.strftime('%H:%M:%S')}")
                 try:
                     await member.timeout(until, reason="lol")
                 except:

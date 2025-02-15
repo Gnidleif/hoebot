@@ -23,6 +23,6 @@ class HoeBot(commands.Bot):
 
 if __name__ == "__main__":
     set_event_loop_policy(WindowsSelectorEventLoopPolicy())
-    config = read_json("config")
     setup_logging()
+    config = read_json("config")
     HoeBot().run(token=config["token"])
