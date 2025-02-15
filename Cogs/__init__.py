@@ -1,1 +1,1 @@
-__all__ = ["membercog", "messagecog", "randomcog"]
+__all__ = ["membercog", "randomcog"]

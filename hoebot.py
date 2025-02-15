@@ -11,18 +11,17 @@ class HoeBot(commands.Bot):
         intents.presences = True
         intents.members = True
         intents.message_content = True
-        super().__init__(command_prefix=commands.when_mentioned_or('$'), intents=intents)
+        super().__init__(command_prefix=commands.when_mentioned_or('$'), 
+                         intents=intents)
 
     async def setup_hook(self) -> None:
-        await self.add_cog(randomcog.Random(self))
+        await self.add_cog(randomcog.Randoms(self))
+        await self.add_cog(membercog.Members(self))
 
     async def on_ready(self) -> None:
         ts_print(f"{self.user} started, member of:")
         for guild in self.guilds:
             ts_print(f"\t{guild} ({guild.id})")
-
-    async def on_command_error(self, context, exception):
-        return await super().on_command_error(context, exception)
 
 if __name__ == "__main__":
     set_event_loop_policy(WindowsSelectorEventLoopPolicy())
