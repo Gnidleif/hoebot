@@ -1,7 +1,7 @@
 #!/usr/bin/python3.12
-from asyncio import set_event_loop_policy, WindowsSelectorEventLoopPolicy
+import asyncio
 from tools import ts_print, read_json, setup_logging
-from discord import Intents
+from discord import Intents, Status
 from discord.ext import commands
 
 class HoeBot(commands.Bot):
@@ -22,7 +22,16 @@ class HoeBot(commands.Bot):
             ts_print(f"\t{guild} ({guild.id})")
 
 if __name__ == "__main__":
-    set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     setup_logging()
     config = read_json("config")
-    HoeBot().run(token=config["token"])
+    client = HoeBot()
+
+    try:
+        client.run(token=config["token"])
+    except KeyboardInterrupt:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(client.change_presence(status=Status.offline))
+        client.close()
+        for task in asyncio.all_tasks():
+            task.cancel()
